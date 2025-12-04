@@ -3,9 +3,9 @@ version: '3.8'
 services:
   odoo:
     build: .
-    container_name: odoo18
+    container_name: odoo18_aqua
     ports:
-      - "8069:8069"
+      - "8079+:8069"
     environment:
       # Database configuration
       - DB_HOST=db
@@ -33,7 +33,7 @@ services:
       - db-data:/var/lib/postgresql/data/pgdata
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "5433:5433"
 
 volumes:
   odoo-data:
