@@ -1,42 +1,35 @@
-version: '3.8'
-
 services:
   odoo:
-    build: .
-    container_name: odoo18_qa
-    ports:
-      - "8079:8069"
+    image: 'odoo:18'
     environment:
-      # Database configuration
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=odoo
-      - DB_PASSWORD=odoo_password
-      - DB_NAME=postgres
+      - SERVICE_URL_ODOO_8069
+      - HOST=postgresql
+      - USER=$SERVICE_USER_POSTGRES
+      - PASSWORD=$SERVICE_PASSWORD_POSTGRES
     volumes:
-      - odoo-data:/var/lib/odoo
-      - ./addons:/mnt/extra-addons
-    depends_on:
-      - db
-    restart: unless-stopped
-
-  # Local database for testing (remove this when using external database)
-  db:
-    image: postgres:15
-    container_name: odoo18_db
+      - 'odoo-web-data:/var/lib/odoo'
+      - 'odoo-extra-addons:/mnt/extra-addons'
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - '-f'
+        - 'http://127.0.0.1:8079'
+      interval: 2s
+      timeout: 10s
+      retries: 30
+  postgresql:
+    image: 'postgres:16-alpine'
+    volumes:
+      - 'postgresql-data:/var/lib/postgresql/data'
     environment:
+      - POSTGRES_USER=$SERVICE_USER_POSTGRES
+      - POSTGRES_PASSWORD=$SERVICE_PASSWORD_POSTGRES
       - POSTGRES_DB=postgres
-      - POSTGRES_USER=odoo
-      - POSTGRES_PASSWORD=odoo_password
-      - PGDATA=/var/lib/postgresql/data/pgdata
-    volumes:
-      - db-data:/var/lib/postgresql/data/pgdata
-    restart: unless-stopped
-    ports:
-      - "5433:5433"
-
-volumes:
-  odoo-data:
-    driver: local
-  db-data:
-    driver: local
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'pg_isready -U $${POSTGRES_USER} -d postgres'
+      interval: 5s
+      timeout: 20s
+      retries: 10
