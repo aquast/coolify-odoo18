@@ -41,3 +41,9 @@ phonenumbers>=8.12.0
 
 # For email validation
 email-validator>=1.1.0
+
+# For OCA caldav App
+caldav>=2.1.2
+
+# For Open HRMS Core
+pandas>=2.3.3
